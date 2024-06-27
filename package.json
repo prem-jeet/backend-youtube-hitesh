@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "backend code of the youtube app created in hitesh backend playlist - youtube",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "dev": "nodemon src/index.js", 
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -12,5 +14,8 @@
     "backend"
   ],
   "author": "pemjeet",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
 }
