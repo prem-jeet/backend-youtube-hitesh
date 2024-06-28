@@ -1,6 +1,11 @@
 import { connect } from "mongoose";
-import { DB_NAME } from "./constants";
 import express from "express";
+import connectDB from "./db/index.js";
+import 'dotenv/config'
+
+connectDB()
+
+
 
 
 
