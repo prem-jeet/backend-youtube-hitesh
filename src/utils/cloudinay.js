@@ -9,7 +9,7 @@ cloudinary.config({
   secure: true,
 });
 
-export default cloudinaryUploaad = async function (localFilePath) {
+export default cloudinaryUpload = async function (localFilePath) {
   try {
     const res = await cloudinary.uploader.upload(localFilePath, {
       resource_type: auto,
