@@ -1,4 +1,6 @@
 import { Schema, model } from "mongoose"
+import jwt from "jsonwebtoken"
+import bcrypt from "bcryptjs"
 
 const userSchema = new Schema(
     {
@@ -42,11 +44,23 @@ const userSchema = new Schema(
         refreshToken: {
             type: String
         }
-    }
-    , { timestamps: true });
+    }, { timestamps: true });
+
+// hash password before saving
+userSchema.pre("save", async function (next) {
+    if (!this.isModified('password')) return next();
+
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+
+})
+
+// password checker method
+userSchema.methods.isPasswordCorect = async function (password) {
+    return await bcrypt.compare(password, this.password);
+}
 
 
 const User = model("User", userSchema);
 
 export default User;
-
