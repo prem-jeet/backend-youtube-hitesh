@@ -19,7 +19,7 @@ const generateAccessAndRefreshToken = async (userId) => {
   }
 };
 
-const registerUser = asyncHandler(async (req, res) => {
+const regi sterUser = asyncHandler(async (req, res) => {
   // get use details in request
   const { fullname, email, username, password } = req.body;
 
@@ -203,4 +203,125 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     throw new ApiError(401, error?.message || "Invalid refresh token");
   }
 });
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+
+const changeChangeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const user = User.findById(req.user?.id);
+  if (!user) throw new ApiError(404, "user not forund");
+  const isPasswordValid = await user.isPasswordCorrect(oldPassword);
+  if (!isPasswordValid) throw new ApiError(400, "Invalid password");
+
+  user.passWord = newPassword;
+  await user.save({ validateBeforeSave: true });
+
+  res
+    .status(200)
+    .send(new ApiResponse(200, {}, "Password updated successfully"));
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res.status(
+    200,
+    new ApiResponse(200, req.user, "current user fetched successfully")
+  );
+});
+
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullname, email } = req.body;
+
+  if (!fullname || !email) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        fullname,
+        email,
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .send(new ApiResponse(200, user, "Account details updated successfully"));
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  const files = req.files;
+
+  if (!files.avatar || !files.avatar[0]) {
+    throw new ApiError(409, "Avatar is required");
+  }
+
+  const path = files.avatar[0].path;
+
+  const cloudinaryLink = await cloudinaryUpload(path);
+  if (!cloudinaryLink || !cloudinaryLink.url) {
+    fs.unlink(path);
+    throw new ApiError(500, "Something went wrond while uploading avater");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user.body,
+    {
+      $set: {
+        avatar: cloudinaryLink.url,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .send(new ApiResponse(200, user, "Updated avatar succcessfully"));
+});
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+  const files = req.files;
+
+  if (!files.coverImage || !files.coverImage[0]) {
+    throw new ApiError(409, "Cober image is required");
+  }
+
+  const path = files.coverImage[0].path;
+
+  const cloudinaryLink = await cloudinaryUpload(path);
+  if (!cloudinaryLink || !cloudinaryLink.url) {
+    fs.unlink(path);
+    throw new ApiError(500, "Something went wrond while uploading avater");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user.body,
+    {
+      $set: {
+        coverImage: cloudinaryLink.url,
+      },
+    },
+    {
+      new: true,
+    }
+  ).select("-password -refreshToken");
+
+  return res
+    .status(200)
+    .send(new ApiResponse(200, user, "Updated cover image succcessfully"));
+});
+
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  changeChangeCurrentPassword,
+  getCurrentUser,
+  updateAccountDetails,
+  updateUserCoverImage,
+  updateUserAvatar,
+};
