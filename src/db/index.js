@@ -11,5 +11,4 @@ const connectDB = async () => {
         throw error
     }
 }
-// just a test line
 export default connectDB;
