@@ -19,7 +19,7 @@ const generateAccessAndRefreshToken = async (userId) => {
   }
 };
 
-const regi sterUser = asyncHandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
   // get use details in request
   const { fullname, email, username, password } = req.body;
 
